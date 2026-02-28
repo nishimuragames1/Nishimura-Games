@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEWS — NISHIMURA GAMES</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .news-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid rgba(0,245,255,.1);
+    }
+    .news-card {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      border-bottom: 1px solid rgba(0,245,255,.07);
+      transition: background .2s;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .news-card:last-child { border-bottom: none; }
+    .news-card:hover { background: rgba(0,245,255,.03); }
+
+    .news-card-left {
+      padding: 24px 20px;
+      border-right: 1px solid rgba(0,245,255,.07);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .news-card-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: rgba(224,240,255,.35);
+      letter-spacing: 1px;
+    }
+
+    .news-card-right {
+      padding: 24px 28px;
+    }
+    .news-card-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .news-card-body {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(224,240,255,.55);
+      line-height: 1.85;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      font-family: 'Orbitron', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 6px 16px;
+      letter-spacing: 2px;
+      border: 1px solid rgba(224,240,255,.15);
+      color: rgba(224,240,255,.45);
+      background: transparent;
+      cursor: pointer;
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0,245,255,.05);
+    }
+
+    @media(max-width:700px){
+      .news-card { grid-template-columns: 1fr; }
+      .news-card-left { border-right: none; border-bottom: 1px solid rgba(0,245,255,.07); padding: 16px 16px 12px; flex-direction: row; align-items: center; }
+      .news-card-right { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a>
+
+  <ul class="nav-links">
+    <li><a href="index.html"   data-page="index.html">HOME</a></li>
+    <li><a href="games.html"   data-page="games.html">GAMES</a></li>
+    <li><a href="news.html"    data-page="news.html" class="active">NEWS</a></li>
+    <li><a href="updates.html" data-page="updates.html">UPDATES</a></li>
+    <li><a href="about.html"   data-page="about.html">ABOUT</a></li>
+    <li><a href="account.html" class="nav-btn">LOG IN</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+<div class="drawer" id="drawer">
+  <div class="drawer-section-label">MENU</div>
+  <a href="index.html" data-page="index.html">HOME</a>
+  <a href="games.html" data-page="games.html">GAMES</a>
+  <div class="drawer-section-label">INFORMATION</div>
+  <a href="news.html"    data-page="news.html">NEWS</a>
+  <a href="updates.html" data-page="updates.html">UPDATES</a>
+  <a href="about.html"   data-page="about.html">ABOUT</a>
+  <a href="account.html" class="drawer-login">LOG IN →</a>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <span class="page-eyebrow">// NEWS</span>
+    <h1 class="page-title">LATEST <span>NEWS</span></h1>
+    <p class="page-desc">新作リリース・イベント・お知らせなど、Nishimura Gamesからの最新情報。</p>
+  </div>
+
+  <div class="container">
+    <div class="filter-bar reveal">
+      <button class="filter-btn active" onclick="filterNews('all',this)">ALL</button>
+      <button class="filter-btn" onclick="filterNews('new',this)">NEW RELEASE</button>
+      <button class="filter-btn" onclick="filterNews('event',this)">EVENT</button>
+      <button class="filter-btn" onclick="filterNews('info',this)">INFO</button>
+    </div>
+
+    <div class="news-grid reveal" id="newsGrid">
+
+      <div class="news-card" data-type="new">
+        <div class="news-card-left">
+          <div class="news-card-date">2025.02.16</div>
+          <span class="tag tag-new">NEW RELEASE</span>
+        </div>
+        <div class="news-card-right">
+          <div class="news-card-title">VOID RUNNER — 正式リリース！</div>
+          <div class="news-card-body">
+            スペースシューティングゲーム「VOID RUNNER」が正式リリースされました。<br>
+            エンドレスな宇宙を舞台に、迫りくる敵の群れを撃ち破り生き残れ。<br>
+            ブラウザ上で今すぐプレイできます。
+          </div>
+        </div>
+      </div>
+
+      <div class="news-card" data-type="info" style="opacity:.55">
+        <div class="news-card-left">
+          <div class="news-card-date">???</div>
+          <span class="tag tag-event">COMING</span>
+        </div>
+        <div class="news-card-right">
+          <div class="news-card-title">次回作 制作中</div>
+          <div class="news-card-body">
+            次のタイトルを現在開発中です。詳細は後日発表予定。
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a>
+      <p>一人で作るインディーゲームスタジオ。</p>
+    </div>
+    <div class="footer-col"><h4>GAMES</h4><ul><li><a href="void-runner.html">Void Runner</a></li><li><a href="games.html">All Games</a></li></ul></div>
+    <div class="footer-col"><h4>INFO</h4><ul><li><a href="news.html">News</a></li><li><a href="updates.html">Updates</a></li><li><a href="about.html">About</a></li></ul></div>
+    <div class="footer-col"><h4>LINKS</h4><ul><li><a href="#">GitHub</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Contact</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 NISHIMURA GAMES.</span>
+    <div class="footer-social"><a href="#">GITHUB</a><a href="#">CONTACT</a></div>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+<script>
+function filterNews(type, btn){
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.news-card').forEach(card => {
+    card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

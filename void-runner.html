@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOID RUNNER — NISHIMURA GAMES</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ヒーローバナー */
+    .game-hero {
+      position: relative;
+      height: 340px;
+      background: var(--dark3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(0,245,255,.1);
+    }
+    .game-hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(0,245,255,.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 50%, rgba(255,0,110,.06) 0%, transparent 60%);
+    }
+    .game-hero-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: clamp(48px, 8vw, 88px);
+      color: rgba(255,255,255,.07);
+      letter-spacing: 8px;
+      position: absolute;
+      user-select: none;
+    }
+    .game-hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    .game-hero-icon {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 72px;
+      color: rgba(0,245,255,.2);
+      text-shadow: 0 0 40px rgba(0,245,255,.3);
+      display: block;
+      margin-bottom: 16px;
+    }
+    .game-hero-name {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: clamp(32px,5vw,52px);
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,255,255,.2);
+      letter-spacing: 4px;
+    }
+    .game-hero-catch {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(224,240,255,.5);
+      letter-spacing: 3px;
+      margin-top: 8px;
+    }
+
+    /* メタ情報 */
+    .meta-bar {
+      background: rgba(0,245,255,.03);
+      border-bottom: 1px solid rgba(0,245,255,.08);
+      padding: 16px 40px;
+    }
+    .meta-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .meta-key {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px; letter-spacing: 3px;
+      color: rgba(0,245,255,.35);
+      text-transform: uppercase;
+    }
+    .meta-val {
+      font-size: 13px; font-weight: 600;
+      color: rgba(224,240,255,.75);
+    }
+
+    /* コンテンツ2カラム */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* 概要 */
+    .detail-body h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px; font-weight: 700;
+      color: var(--cyan); letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      margin-top: 32px;
+    }
+    .detail-body h3:first-child { margin-top: 0; }
+    .detail-body p {
+      font-size: 14px; font-weight: 300;
+      color: rgba(224,240,255,.6);
+      line-height: 2;
+      margin-bottom: 12px;
+    }
+    .detail-body ul {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 6px;
+      margin-bottom: 12px;
+    }
+    .detail-body li {
+      font-size: 13px; font-weight: 300;
+      color: rgba(224,240,255,.55);
+      line-height: 1.7;
+      padding-left: 14px;
+      position: relative;
+    }
+    .detail-body li::before { content:'·'; position:absolute; left:0; color:var(--cyan); }
+
+    /* サイドバー */
+    .detail-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: sticky;
+      top: 88px;
+    }
+    .side-card {
+      background: var(--dark2);
+      border: 1px solid rgba(0,245,255,.12);
+      padding: 20px;
+    }
+    .side-card-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px; letter-spacing: 3px;
+      color: rgba(0,245,255,.4);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .side-version {
+      font-family: 'Orbitron', monospace;
+      font-size: 22px; font-weight: 900;
+      color: var(--cyan); text-shadow: var(--glow-c);
+      margin-bottom: 4px;
+    }
+    .side-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; color: rgba(224,240,255,.3);
+      margin-bottom: 16px;
+    }
+    .control-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(0,245,255,.06);
+    }
+    .control-row:last-child { border-bottom: none; }
+    .control-key {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px; color: var(--cyan);
+      background: rgba(0,245,255,.08);
+      border: 1px solid rgba(0,245,255,.2);
+      padding: 2px 8px; border-radius: 2px;
+    }
+    .control-desc {
+      font-size: 12px; color: rgba(224,240,255,.45);
+    }
+
+    @media(max-width:900px){
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-sidebar { position: static; }
+      .meta-bar { padding: 14px 20px; }
+      .meta-inner { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a>
+
+  <ul class="nav-links">
+    <li><a href="index.html"   data-page="index.html">HOME</a></li>
+    <li><a href="games.html"   data-page="games.html" class="active">GAMES</a></li>
+    <li><a href="news.html"    data-page="news.html">NEWS</a></li>
+    <li><a href="updates.html" data-page="updates.html">UPDATES</a></li>
+    <li><a href="about.html"   data-page="about.html">ABOUT</a></li>
+    <li><a href="account.html" class="nav-btn">LOG IN</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+<div class="drawer" id="drawer">
+  <div class="drawer-section-label">MENU</div>
+  <a href="index.html">HOME</a>
+  <a href="games.html">GAMES</a>
+  <div class="drawer-section-label">INFORMATION</div>
+  <a href="news.html">NEWS</a>
+  <a href="updates.html">UPDATES</a>
+  <a href="about.html">ABOUT</a>
+  <a href="account.html" class="drawer-login">LOG IN →</a>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<div class="page-wrap">
+
+  <!-- ゲームヒーロー -->
+  <div class="game-hero">
+    <div class="game-hero-bg"></div>
+    <div class="game-hero-title">VOID RUNNER</div>
+    <div class="game-hero-content">
+      <span class="game-hero-icon">🚀</span>
+      <div class="game-hero-name">VOID RUNNER</div>
+      <div class="game-hero-catch">ENDLESS SPACE SHOOTER</div>
+    </div>
+  </div>
+
+  <!-- メタバー -->
+  <div class="meta-bar">
+    <div class="meta-inner">
+      <div class="meta-item"><span class="meta-key">GENRE</span><span class="meta-val">Shooter · Endless</span></div>
+      <div class="meta-item"><span class="meta-key">VERSION</span><span class="meta-val">v1.2.0</span></div>
+      <div class="meta-item"><span class="meta-key">PLATFORM</span><span class="meta-val">Browser (PC / Mobile)</span></div>
+      <div class="meta-item"><span class="meta-key">RELEASE</span><span class="meta-val">2025.02.16</span></div>
+      <div style="margin-left:auto">
+        <a href="games/void-runner/index.html" class="btn-primary">▶ PLAY NOW</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 詳細コンテンツ -->
+  <div class="container">
+    <div class="detail-grid">
+
+      <!-- 本文 -->
+      <div class="detail-body reveal">
+        <h3>OVERVIEW</h3>
+        <p>
+          VOID RUNNER はブラウザで動作するエンドレス型スペースシューティングゲームです。
+          プレイヤーは宇宙船を操り、次々と襲いかかる敵の群れを撃ち破りながら
+          できるだけ長く生き残ることを目指します。
+        </p>
+        <p>
+          WAVEが進むにつれて敵の種類・速度・弾の密度が増し、
+          強力なBOSSとの対決も待ち受けています。
+          スキルやアイテムを駆使して限界まで戦い抜け。
+        </p>
+
+        <h3>FEATURES</h3>
+        <ul>
+          <li>5段階の難易度設定（EASY / NORMAL / HARD / EXPERT / NIGHTMARE）</li>
+          <li>ムーブレベルシステム：オーブを集めて能力強化</li>
+          <li>4種類のスキル（HOMING / WAVE / DROP / MEGABOMB）</li>
+          <li>スタートボーナスシステム（コインを消費して有利スタート）</li>
+          <li>デイリーミッション（毎日3つのミッションに挑戦）</li>
+          <li>プレイヤーレベル・ランキングシステム</li>
+          <li>ショップでコインを使ってパワーアップ</li>
+        </ul>
+
+        <h3>HOW TO PLAY</h3>
+        <ul>
+          <li>移動：W / A / S / D キー、または矢印キー（タッチ操作対応）</li>
+          <li>射撃：スペースバー またはマウスクリック</li>
+          <li>アイテム使用：1〜5キー</li>
+          <li>スキル使用：C（HOMING）/ V（WAVE）/ B（DROP）/ N（MEGABOMB）</li>
+        </ul>
+
+        <h3>UPDATE LOG</h3>
+        <p style="font-size:13px;color:rgba(224,240,255,.4)">
+          詳細なアップデート履歴は
+          <a href="updates.html" style="color:var(--cyan);text-decoration:none;">UPDATES ページ</a>
+          をご覧ください。
+        </p>
+      </div>
+
+      <!-- サイドバー -->
+      <div class="detail-sidebar reveal">
+
+        <div class="side-card">
+          <div class="side-card-title">LATEST VERSION</div>
+          <div class="side-version">v1.2.0</div>
+          <div class="side-date">2025.02.24</div>
+          <a href="games/void-runner/index.html" class="btn-primary" style="width:100%;text-align:center;display:block;">▶ PLAY</a>
+        </div>
+
+        <div class="side-card">
+          <div class="side-card-title">CONTROLS</div>
+          <div class="control-row">
+            <span class="control-key">WASD / ↑↓←→</span>
+            <span class="control-desc">移動</span>
+          </div>
+          <div class="control-row">
+            <span class="control-key">SPACE / CLICK</span>
+            <span class="control-desc">射撃</span>
+          </div>
+          <div class="control-row">
+            <span class="control-key">1 〜 5</span>
+            <span class="control-desc">アイテム</span>
+          </div>
+          <div class="control-row">
+            <span class="control-key">C / V / B / N</span>
+            <span class="control-desc">スキル</span>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-card-title">TECH</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="tag tag-update">HTML5</span>
+            <span class="tag tag-update">CSS3</span>
+            <span class="tag tag-update">JavaScript</span>
+            <span class="tag tag-update">Canvas API</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a><p>一人で作るインディーゲームスタジオ。</p></div>
+    <div class="footer-col"><h4>GAMES</h4><ul><li><a href="void-runner.html">Void Runner</a></li><li><a href="games.html">All Games</a></li></ul></div>
+    <div class="footer-col"><h4>INFO</h4><ul><li><a href="news.html">News</a></li><li><a href="updates.html">Updates</a></li><li><a href="about.html">About</a></li></ul></div>
+    <div class="footer-col"><h4>LINKS</h4><ul><li><a href="#">GitHub</a></li><li><a href="#">Contact</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 NISHIMURA GAMES.</span>
+    <div class="footer-social"><a href="#">GITHUB</a><a href="#">CONTACT</a></div>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+</body>
+</html>

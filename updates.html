@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPDATES — NISHIMURA GAMES</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* フィルター */
+    .filter-bar { display:flex; gap:8px; margin-bottom:32px; flex-wrap:wrap; }
+    .filter-btn {
+      font-family:'Orbitron',monospace; font-size:9px; font-weight:700;
+      padding:6px 16px; letter-spacing:2px;
+      border:1px solid rgba(224,240,255,.15); color:rgba(224,240,255,.45);
+      background:transparent; cursor:pointer; transition:all .2s; text-transform:uppercase;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      border-color:var(--cyan); color:var(--cyan); background:rgba(0,245,255,.05);
+    }
+
+    /* タイムライン */
+    .timeline { position:relative; padding-left: 28px; }
+    .timeline::before {
+      content:'';
+      position:absolute; left:0; top:0; bottom:0;
+      width:1px;
+      background: linear-gradient(180deg, var(--cyan), rgba(0,245,255,.1) 90%, transparent);
+    }
+
+    .tl-entry {
+      position:relative;
+      margin-bottom:40px;
+    }
+    .tl-entry::before {
+      content:'';
+      position:absolute;
+      left:-32px; top:20px;
+      width:8px; height:8px;
+      border-radius:50%;
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    .tl-header {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+    .tl-ver {
+      font-family:'Orbitron',monospace;
+      font-weight:900; font-size:20px;
+      color:#fff; letter-spacing:1px;
+    }
+    .tl-date {
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px; color:rgba(224,240,255,.35);
+    }
+    .tl-game {
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px; letter-spacing:2px;
+      color:var(--cyan); opacity:.7;
+    }
+
+    .tl-body {
+      background:var(--dark2);
+      border:1px solid rgba(0,245,255,.1);
+      border-left:3px solid var(--cyan);
+      padding:20px 24px;
+    }
+
+    .tl-section {
+      margin-bottom:14px;
+    }
+    .tl-section:last-child { margin-bottom:0; }
+    .tl-section-title {
+      font-family:'Share Tech Mono',monospace;
+      font-size:9px; letter-spacing:3px;
+      color:rgba(0,245,255,.5); text-transform:uppercase;
+      margin-bottom:8px;
+    }
+    .tl-list {
+      list-style:none;
+      display:flex; flex-direction:column; gap:5px;
+    }
+    .tl-list li {
+      font-size:13px; font-weight:300;
+      color:rgba(224,240,255,.65);
+      line-height:1.6;
+      padding-left:12px;
+      position:relative;
+    }
+    .tl-list li::before {
+      content:'·';
+      position:absolute; left:0;
+      color:var(--cyan);
+    }
+
+    /* FIXは黄色ライン */
+    .tl-entry.fix .tl-body { border-left-color: var(--yellow); }
+    .tl-entry.fix .tl-entry::before { background: var(--yellow); }
+    .tl-entry.fix .tl-section-title { color:rgba(255,214,10,.5); }
+    .tl-entry.fix .tl-list li::before { color:var(--yellow); }
+
+    @media(max-width:600px){
+      .timeline { padding-left:20px; }
+      .tl-body { padding:16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a>
+
+  <ul class="nav-links">
+    <li><a href="index.html"   data-page="index.html">HOME</a></li>
+    <li><a href="games.html"   data-page="games.html">GAMES</a></li>
+    <li><a href="news.html"    data-page="news.html">NEWS</a></li>
+    <li><a href="updates.html" data-page="updates.html" class="active">UPDATES</a></li>
+    <li><a href="about.html"   data-page="about.html">ABOUT</a></li>
+    <li><a href="account.html" class="nav-btn">LOG IN</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+<div class="drawer" id="drawer">
+  <div class="drawer-section-label">MENU</div>
+  <a href="index.html" data-page="index.html">HOME</a>
+  <a href="games.html" data-page="games.html">GAMES</a>
+  <div class="drawer-section-label">INFORMATION</div>
+  <a href="news.html"    data-page="news.html">NEWS</a>
+  <a href="updates.html" data-page="updates.html">UPDATES</a>
+  <a href="about.html"   data-page="about.html">ABOUT</a>
+  <a href="account.html" class="drawer-login">LOG IN →</a>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <span class="page-eyebrow">// UPDATES</span>
+    <h1 class="page-title">UPDATE <span>HISTORY</span></h1>
+    <p class="page-desc">全ゲームのバグ修正・バージョンアップ履歴を時系列でまとめています。</p>
+  </div>
+
+  <div class="container">
+    <div class="filter-bar reveal">
+      <button class="filter-btn active" onclick="filterUpdates('all',this)">ALL GAMES</button>
+      <button class="filter-btn" onclick="filterUpdates('void-runner',this)">VOID RUNNER</button>
+    </div>
+
+    <div class="timeline" id="timeline">
+
+      <!-- v1.2.0 -->
+      <div class="tl-entry reveal" data-game="void-runner">
+        <div class="tl-header">
+          <span class="tl-ver">v1.2.0</span>
+          <span class="tag tag-update">UPDATE</span>
+          <span class="tl-date">2025.02.24</span>
+          <span class="tl-game">VOID RUNNER</span>
+        </div>
+        <div class="tl-body">
+          <div class="tl-section">
+            <div class="tl-section-title">NEW FEATURES</div>
+            <ul class="tl-list">
+              <li>スタートボーナスを実装しました。</li>
+              <li>デイリーミッションを実装しました。</li>
+            </ul>
+          </div>
+          <div class="tl-section">
+            <div class="tl-section-title">BUG FIXES &amp; CHANGES</div>
+            <ul class="tl-list">
+              <li>弾が大きくなるとプレイヤーも大きくなる問題を修正。</li>
+              <li>難易度により数値の表示が大きくなる問題を修正。</li>
+              <li>ホーム画面に選択中の難易度が表示されるようになりました。</li>
+              <li>レベルの上がり具合を調整しました。</li>
+              <li>ムーブの上がり具合を調整しました。</li>
+              <li>ゲームオーバー後の画面により細かい表示がされるようになりました。</li>
+              <li>敵とボスのステータスを調整しました。</li>
+              <li>難易度の調整を行いました。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v1.0.1 -->
+      <div class="tl-entry fix reveal" data-game="void-runner">
+        <div class="tl-header">
+          <span class="tl-ver">v1.0.1</span>
+          <span class="tag tag-fix">FIX</span>
+          <span class="tl-date">2025.02.17</span>
+          <span class="tl-game">VOID RUNNER</span>
+        </div>
+        <div class="tl-body" style="border-left-color:var(--yellow)">
+          <div class="tl-section">
+            <div class="tl-section-title" style="color:rgba(255,214,10,.5)">BUG FIXES</div>
+            <ul class="tl-list" style="--dot-color:var(--yellow)">
+              <li>一部環境でスキルが発動できない問題を修正。</li>
+              <li>スキルを一度しか発動できない問題を修正。</li>
+              <li>スキル発動後の見た目の問題を修正。</li>
+            </ul>
+          </div>
+          <div class="tl-section">
+            <div class="tl-section-title" style="color:rgba(255,214,10,.5)">CHANGES</div>
+            <ul class="tl-list">
+              <li>スキル発動可能時は緑色、ピース不足時は黄色に変わるよう仕様変更。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v1.0.0 -->
+      <div class="tl-entry reveal" data-game="void-runner" style="--dot:var(--magenta)">
+        <div class="tl-header">
+          <span class="tl-ver">v1.0.0</span>
+          <span class="tag tag-new">RELEASE</span>
+          <span class="tl-date">2025.02.16</span>
+          <span class="tl-game">VOID RUNNER</span>
+        </div>
+        <div class="tl-body" style="border-left-color:var(--magenta)">
+          <div class="tl-section">
+            <div class="tl-section-title" style="color:rgba(255,0,110,.5)">INITIAL RELEASE</div>
+            <ul class="tl-list">
+              <li>VOID RUNNER 正式リリース。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v0.9.0 -->
+      <div class="tl-entry reveal" data-game="void-runner" style="opacity:.6">
+        <div class="tl-header">
+          <span class="tl-ver" style="font-size:16px;color:rgba(224,240,255,.5)">v0.9.0</span>
+          <span class="tag" style="background:rgba(100,100,100,.1);color:#666;border-color:#333">BETA</span>
+          <span class="tl-date">2025.02.15</span>
+          <span class="tl-game">VOID RUNNER</span>
+        </div>
+        <div class="tl-body" style="border-left-color:rgba(100,100,100,.3)">
+          <div class="tl-section">
+            <ul class="tl-list">
+              <li>先行体験版：チュートリアル追加。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-entry reveal" data-game="void-runner" style="opacity:.6">
+        <div class="tl-header">
+          <span class="tl-ver" style="font-size:16px;color:rgba(224,240,255,.5)">v0.8.0</span>
+          <span class="tag" style="background:rgba(100,100,100,.1);color:#666;border-color:#333">BETA</span>
+          <span class="tl-date">2025.02.14</span>
+          <span class="tl-game">VOID RUNNER</span>
+        </div>
+        <div class="tl-body" style="border-left-color:rgba(100,100,100,.3)">
+          <div class="tl-section">
+            <ul class="tl-list">
+              <li>先行体験版：ランキング機能実装。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a><p>一人で作るインディーゲームスタジオ。</p></div>
+    <div class="footer-col"><h4>GAMES</h4><ul><li><a href="void-runner.html">Void Runner</a></li><li><a href="games.html">All Games</a></li></ul></div>
+    <div class="footer-col"><h4>INFO</h4><ul><li><a href="news.html">News</a></li><li><a href="updates.html">Updates</a></li><li><a href="about.html">About</a></li></ul></div>
+    <div class="footer-col"><h4>LINKS</h4><ul><li><a href="#">GitHub</a></li><li><a href="#">Contact</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 NISHIMURA GAMES.</span>
+    <div class="footer-social"><a href="#">GITHUB</a><a href="#">CONTACT</a></div>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+<script>
+function filterUpdates(game, btn){
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tl-entry').forEach(el => {
+    el.style.display = (game === 'all' || el.dataset.game === game) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NISHIMURA GAMES</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ========== ヒーロー ========== */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 40px 60px;
+      z-index: 2;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+    }
+    .hero-glow-1 {
+      background: radial-gradient(ellipse, rgba(0,245,255,0.1) 0%, transparent 70%);
+      top: 5%; left: 15%;
+      animation: gpulse1 7s ease-in-out infinite;
+    }
+    .hero-glow-2 {
+      background: radial-gradient(ellipse, rgba(255,0,110,0.07) 0%, transparent 70%);
+      bottom: 5%; right: 15%;
+      animation: gpulse2 9s ease-in-out infinite;
+    }
+    @keyframes gpulse1 { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+    @keyframes gpulse2 { 0%,100%{opacity:.4;transform:scale(1.05)} 50%{opacity:.8;transform:scale(.95)} }
+
+    .hero-eyebrow {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s ease forwards;
+    }
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: clamp(52px, 9vw, 100px);
+      line-height: 0.9;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s ease forwards;
+    }
+    .hero-title .l1 { display: block; color: #fff; text-shadow: 0 0 40px rgba(255,255,255,.2); }
+    .hero-title .l2 {
+      display: block;
+      background: linear-gradient(90deg, var(--cyan), var(--magenta));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 16px rgba(0,245,255,.4));
+    }
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(224,240,255,.55);
+      letter-spacing: 2px;
+      max-width: 440px;
+      line-height: 2;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s ease forwards;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s ease forwards;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      opacity: 0;
+      animation: fadeUp 1s 1.4s ease forwards;
+    }
+    .scroll-hint span {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: rgba(0,245,255,.35);
+    }
+    .scroll-line {
+      width: 1px; height: 36px;
+      background: linear-gradient(180deg, var(--cyan), transparent);
+      animation: lineScroll 2s ease-in-out infinite;
+    }
+    @keyframes lineScroll {
+      0%{opacity:1;transform:scaleY(1) translateY(0)}
+      100%{opacity:0;transform:scaleY(.5) translateY(18px)}
+    }
+    @keyframes fadeUp {
+      from{opacity:0;transform:translateY(20px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    /* ========== 統計バー ========== */
+    #statsbar {
+      position: relative; z-index: 2;
+      border-top: 1px solid rgba(0,245,255,.1);
+      border-bottom: 1px solid rgba(0,245,255,.1);
+      background: rgba(0,245,255,.02);
+      padding: 28px 40px;
+      display: flex;
+      justify-content: center;
+      gap: 72px;
+    }
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--cyan);
+      text-shadow: var(--glow-c);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: rgba(224,240,255,.35);
+      text-transform: uppercase;
+    }
+    .stat-div { width:1px; background:rgba(0,245,255,.12); align-self:stretch; }
+
+    /* ========== ゲームグリッド ========== */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+      gap: 20px;
+    }
+    .game-card {
+      position: relative;
+      background: var(--dark2);
+      border: 1px solid rgba(0,245,255,.15);
+      overflow: hidden;
+      transition: all .3s;
+    }
+    .game-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,rgba(0,245,255,.04),transparent 60%);
+      opacity: 0; transition: opacity .3s;
+    }
+    .game-card:hover { border-color: rgba(0,245,255,.45); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,.5),0 0 24px rgba(0,245,255,.08); }
+    .game-card:hover::before { opacity: 1; }
+    .game-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--dark3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .thumb-placeholder {
+      font-family: 'Orbitron', monospace;
+      font-size: 44px;
+      color: rgba(0,245,255,.12);
+      font-weight: 900;
+    }
+    .thumb-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 40%, var(--dark2) 100%);
+    }
+    .card-badge {
+      position: absolute; top:12px; right:12px;
+      font-family: 'Orbitron', monospace;
+      font-size: 8px; font-weight: 700;
+      padding: 3px 10px; letter-spacing: 1.5px;
+    }
+    .badge-new { background: var(--magenta); color: #fff; }
+    .badge-wip { background: rgba(255,214,10,.15); border:1px solid var(--yellow); color: var(--yellow); }
+    .game-info { padding: 18px 22px 22px; }
+    .game-genre {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px; letter-spacing: 3px;
+      color: var(--cyan); margin-bottom: 7px;
+    }
+    .game-name {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900; font-size: 19px;
+      color: #fff; margin-bottom: 9px; letter-spacing: 1px;
+    }
+    .game-desc {
+      font-size: 12px; font-weight: 300;
+      color: rgba(224,240,255,.5);
+      line-height: 1.75; margin-bottom: 18px;
+    }
+    .game-actions { display: flex; gap: 8px; }
+    .btn-play {
+      flex: 1;
+      font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700;
+      padding: 9px 0;
+      background: linear-gradient(135deg,var(--cyan),#0099bb);
+      color: var(--dark); border: none; cursor: pointer;
+      letter-spacing: 2px; text-transform: uppercase;
+      text-decoration: none; text-align: center;
+      transition: all .2s; display: block;
+    }
+    .btn-play:hover { filter: brightness(1.12); box-shadow: 0 4px 18px rgba(0,245,255,.3); }
+    .btn-info {
+      font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700;
+      padding: 9px 14px;
+      background: transparent; color: rgba(224,240,255,.45);
+      border: 1px solid rgba(224,240,255,.15); cursor: pointer;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      text-decoration: none; display: block; transition: all .2s;
+    }
+    .btn-info:hover { border-color: rgba(224,240,255,.4); color: rgba(224,240,255,.8); }
+
+    /* ========== ニュース（トップ3件） ========== */
+    .news-list { display: flex; flex-direction: column; gap: 1px; background: rgba(0,245,255,.07); border: 1px solid rgba(0,245,255,.1); }
+    .news-row {
+      display: grid;
+      grid-template-columns: 130px 70px 1fr;
+      gap: 20px;
+      align-items: center;
+      padding: 18px 24px;
+      background: var(--dark2);
+      transition: background .2s;
+      text-decoration: none;
+    }
+    .news-row:hover { background: rgba(0,245,255,.03); }
+    .news-date { font-family:'Share Tech Mono',monospace; font-size:11px; color:rgba(224,240,255,.3); }
+    .news-text { font-size: 13px; color: rgba(224,240,255,.65); }
+    .news-text strong { color: #fff; }
+    .news-more {
+      padding: 14px 24px;
+      background: var(--dark2);
+      text-align: right;
+    }
+    .news-more a {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; letter-spacing: 2px;
+      color: rgba(0,245,255,.45); text-decoration: none;
+      transition: color .2s;
+    }
+    .news-more a:hover { color: var(--cyan); }
+
+    /* ========== About mini ========== */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .tech-panel {
+      border: 1px solid rgba(0,245,255,.14);
+      padding: 28px;
+      background: var(--dark2);
+    }
+    .tech-row { margin-bottom: 20px; }
+    .tech-row:last-child { margin-bottom: 0; }
+    .tech-key {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px; letter-spacing: 3px;
+      color: rgba(0,245,255,.4); margin-bottom: 8px;
+    }
+    .tech-tags { display: flex; gap: 7px; flex-wrap: wrap; }
+    .tech-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; padding: 3px 10px;
+      border: 1px solid rgba(0,245,255,.18);
+      color: rgba(0,245,255,.6);
+    }
+    .tech-tag.yellow { border-color: rgba(255,214,10,.2); color: rgba(255,214,10,.65); }
+    .status-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #0f0;
+      box-shadow: 0 0 7px #0f0;
+      margin-right: 8px;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ========== セクション区切り ========== */
+    .sec { position: relative; z-index: 2; }
+    .sec-inner { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+    .sec-inner + .sec-inner { border-top: 1px solid rgba(0,245,255,.07); }
+    .sec-hd { margin-bottom: 48px; }
+    .sec-hd h2 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900; font-size: clamp(24px,3.5vw,40px);
+      color: #fff;
+    }
+    .sec-hd h2 span { color: var(--cyan); text-shadow: var(--glow-c); }
+
+    @media(max-width:900px){
+      #statsbar { gap:28px; padding:20px; }
+      .stat-div { display:none; }
+      .news-row { grid-template-columns:1fr; gap:6px; padding:14px 16px; }
+      .about-grid { grid-template-columns:1fr; gap:32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== ナビゲーション ========== -->
+<nav>
+  <a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a>
+
+  <ul class="nav-links">
+    <li><a href="index.html"   data-page="index.html" class="active">HOME</a></li>
+    <li><a href="games.html"   data-page="games.html">GAMES</a></li>
+    <li><a href="news.html"    data-page="news.html">NEWS</a></li>
+    <li><a href="updates.html" data-page="updates.html">UPDATES</a></li>
+    <li><a href="about.html"   data-page="about.html">ABOUT</a></li>
+    <li><a href="account.html" class="nav-btn">LOG IN</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ドロワー -->
+<div class="drawer" id="drawer">
+  <div class="drawer-section-label">MENU</div>
+  <a href="index.html"   data-page="index.html">HOME</a>
+  <a href="games.html"   data-page="games.html">GAMES</a>
+
+  <div class="drawer-section-label">INFORMATION</div>
+  <a href="news.html"    data-page="news.html">NEWS</a>
+  <a href="updates.html" data-page="updates.html">UPDATES</a>
+  <a href="about.html"   data-page="about.html">ABOUT</a>
+
+  <a href="account.html" class="drawer-login">LOG IN →</a>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- ========== ヒーロー ========== -->
+<section id="hero">
+  <div class="hero-glow hero-glow-1"></div>
+  <div class="hero-glow hero-glow-2"></div>
+  <p class="hero-eyebrow">// WELCOME TO THE ARCADE</p>
+  <h1 class="hero-title">
+    <span class="l1">NISHIMURA</span>
+    <span class="l2">GAMES</span>
+  </h1>
+  <p class="hero-sub">エンドレスな宇宙を駆け抜ける<br>インディーゲームスタジオ</p>
+  <div class="hero-btns">
+    <a href="games.html" class="btn-primary">PLAY NOW</a>
+    <a href="about.html" class="btn-ghost">LEARN MORE</a>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ========== 統計バー ========== -->
+<div id="statsbar">
+  <div style="text-align:center">
+    <div class="stat-num">1</div>
+    <div class="stat-label">Games Released</div>
+  </div>
+  <div class="stat-div"></div>
+  <div style="text-align:center">
+    <div class="stat-num">v1.2</div>
+    <div class="stat-label">Latest Version</div>
+  </div>
+  <div class="stat-div"></div>
+  <div style="text-align:center">
+    <div class="stat-num">2025</div>
+    <div class="stat-label">Founded</div>
+  </div>
+</div>
+
+<!-- ========== ゲーム一覧（抜粋） ========== -->
+<div class="sec">
+  <div class="sec-inner">
+    <div class="sec-hd reveal">
+      <span class="section-tag">// 01 — GAMES</span>
+      <h2 class="sec-hd-title" style="font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(24px,3.5vw,40px);color:#fff;">
+        OUR <span style="color:var(--cyan);text-shadow:var(--glow-c)">GAMES</span>
+      </h2>
+    </div>
+    <div class="games-grid">
+
+      <div class="game-card reveal">
+        <div class="game-thumb">
+          <div class="thumb-placeholder">VR</div>
+          <div class="thumb-overlay"></div>
+          <span class="card-badge badge-new">NEW</span>
+        </div>
+        <div class="game-info">
+          <div class="game-genre">SHOOTER · ENDLESS</div>
+          <div class="game-name">VOID RUNNER</div>
+          <div class="game-desc">エンドレスな宇宙を駆け抜けるスペースシューティング。<br>迫りくる敵の群れをかいくぐり、生き残れ。</div>
+          <div class="game-actions">
+            <a href="games/void-runner/index.html" class="btn-play">▶ PLAY</a>
+            <a href="void-runner.html" class="btn-info">INFO</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="opacity:.45;pointer-events:none">
+        <div class="game-thumb" style="background:rgba(4,15,32,.7)">
+          <div class="thumb-placeholder" style="font-size:30px">???</div>
+          <div class="thumb-overlay"></div>
+          <span class="card-badge badge-wip">DEV</span>
+        </div>
+        <div class="game-info">
+          <div class="game-genre">COMING SOON</div>
+          <div class="game-name" style="color:rgba(224,240,255,.35)">TITLE UNKNOWN</div>
+          <div class="game-desc">現在開発中のタイトルです。詳細は後日公開予定。</div>
+          <div class="game-actions">
+            <div class="btn-play" style="opacity:.3">COMING SOON</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top:24px;text-align:right">
+      <a href="games.html" class="btn-ghost">ALL GAMES →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ニュース（最新3件） ========== -->
+<div class="sec" style="border-top:1px solid rgba(0,245,255,.07)">
+  <div class="sec-inner">
+    <div class="sec-hd reveal">
+      <span class="section-tag">// 02 — LATEST NEWS</span>
+      <h2 style="font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(24px,3.5vw,40px);color:#fff;">
+        NEWS <span style="color:var(--cyan);text-shadow:var(--glow-c)">&amp; UPDATES</span>
+      </h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px" class="reveal">
+
+      <!-- ニュース -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <span style="font-family:'Orbitron',monospace;font-size:11px;color:var(--cyan);letter-spacing:2px;">NEWS</span>
+          <a href="news.html" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.4);text-decoration:none;letter-spacing:2px;">ALL →</a>
+        </div>
+        <div class="news-list">
+          <a class="news-row" href="news.html">
+            <span class="news-date">2025.02.16</span>
+            <span class="tag tag-new">NEW</span>
+            <span class="news-text"><strong>VOID RUNNER</strong> リリース！</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- アップデート -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <span style="font-family:'Orbitron',monospace;font-size:11px;color:var(--yellow);letter-spacing:2px;">UPDATES</span>
+          <a href="updates.html" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,214,10,.4);text-decoration:none;letter-spacing:2px;">ALL →</a>
+        </div>
+        <div class="news-list">
+          <a class="news-row" href="updates.html">
+            <span class="news-date">2025.02.24</span>
+            <span class="tag tag-update">v1.2.0</span>
+            <span class="news-text"><strong>VOID RUNNER</strong> スタートボーナス・デイリーミッション実装</span>
+          </a>
+          <a class="news-row" href="updates.html">
+            <span class="news-date">2025.02.17</span>
+            <span class="tag tag-fix">FIX</span>
+            <span class="news-text"><strong>VOID RUNNER</strong> v1.0.1 スキルバグ修正</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========== About mini ========== -->
+<div class="sec" style="border-top:1px solid rgba(0,245,255,.07)">
+  <div class="sec-inner">
+    <div class="about-grid">
+      <div class="reveal">
+        <span class="section-tag">// 03 — ABOUT</span>
+        <h2 style="font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(24px,3.5vw,40px);color:#fff;margin-bottom:20px;">
+          WHO WE <span style="color:var(--cyan);text-shadow:var(--glow-c)">ARE</span>
+        </h2>
+        <p style="font-size:14px;font-weight:300;color:rgba(224,240,255,.55);line-height:2;margin-bottom:20px;">
+          Nishimura Games は一人で制作するインディーゲームスタジオです。<br>
+          ブラウザで遊べるゲームを作り続けています。
+        </p>
+        <a href="about.html" class="btn-ghost">MORE ABOUT US →</a>
+      </div>
+      <div class="tech-panel reveal">
+        <div class="tech-row">
+          <div class="tech-key">STACK</div>
+          <div class="tech-tags">
+            <span class="tech-tag">HTML5</span>
+            <span class="tech-tag">CSS3</span>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">Canvas API</span>
+          </div>
+        </div>
+        <div style="height:1px;background:rgba(0,245,255,.07);margin:16px 0"></div>
+        <div class="tech-row">
+          <div class="tech-key">PLATFORM</div>
+          <div class="tech-tags">
+            <span class="tech-tag yellow">GitHub Pages</span>
+            <span class="tech-tag yellow">Browser</span>
+          </div>
+        </div>
+        <div style="height:1px;background:rgba(0,245,255,.07);margin:16px 0"></div>
+        <div class="tech-key">STATUS</div>
+        <span class="status-dot"></span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,255,0,.65);">ACTIVELY DEVELOPING</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== フッター ========== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo">NISHIMURA<span>.</span>GAMES</a>
+      <p>一人で作るインディーゲームスタジオ。<br>ブラウザで遊べるゲームを作り続けています。</p>
+    </div>
+    <div class="footer-col">
+      <h4>GAMES</h4>
+      <ul>
+        <li><a href="void-runner.html">Void Runner</a></li>
+        <li><a href="games.html">All Games →</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>INFO</h4>
+      <ul>
+        <li><a href="news.html">News</a></li>
+        <li><a href="updates.html">Updates</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>LINKS</h4>
+      <ul>
+        <li><a href="#">GitHub</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 NISHIMURA GAMES. ALL RIGHTS RESERVED.</span>
+    <div class="footer-social">
+      <a href="#">GITHUB</a>
+      <a href="#">PRIVACY</a>
+      <a href="#">CONTACT</a>
+    </div>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+</body>
+</html>
